@@ -1,0 +1,8 @@
+AllCops:
+  TargetRubyVersion: 2.3
+  TargetRailsVersion: 4.0
+  Exclude:
+    - db/**/*
+    - config/**/*
+    - bin/**/*
+    - vendor/**/*
