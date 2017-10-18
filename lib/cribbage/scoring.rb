@@ -3,6 +3,22 @@ require "cribbage/hand"
 
 module Cribbage
 
+  CARD_VALUES = {
+    Cribbage::CardNames::ACE => 1,
+    Cribbage::CardNames::TWO => 2,
+    Cribbage::CardNames::THREE => 3,
+    Cribbage::CardNames::FOUR => 4,
+    Cribbage::CardNames::FIVE => 5,
+    Cribbage::CardNames::SIX => 6,
+    Cribbage::CardNames::SEVEN => 7,
+    Cribbage::CardNames::EIGHT => 8,
+    Cribbage::CardNames::NINE => 9,
+    Cribbage::CardNames::TEN => 10,
+    Cribbage::CardNames::JACK => 10,
+    Cribbage::CardNames::QUEEN => 10,
+    Cribbage::CardNames::KING => 10
+  }
+
   # A module that provides utilities for scoring a hand of crib
   module Scoring
     def self.score_hand(hand)
@@ -70,6 +86,37 @@ module Cribbage
 
       # Everything else is 0 points
       return 0
+    end
+
+    def self.score_runs(hand)
+      points = 0
+
+      full_hand = [].concat(hand.cards)
+      full_hand.push(hand.cut_card) unless hand.cut_card.nil?
+
+      
+    end
+
+    def self.score_fifteens(hand)
+      points = 0
+      full_hand = [].concat(hand.cards)
+      full_hand.push(hand.cut_card) unless hand.cut_card.nil?
+      combinations = self.get_card_combinations(full_hand, 2)
+      combinations.each { |combo|
+        total = combo.inject(0) { |sum, card| sum + CARD_VALUES[card.name] }
+        points += 2 if total == 15
+      }
+      return points
+    end
+
+    def self.get_card_combinations(cards, min_size)
+      combos = []
+      len = cards.length
+      return cards if len <= min_size
+      (min_size..len).each { |num|
+        combos.concat(cards.combination(num).to_a)
+      }
+      return combos
     end
   end
 end

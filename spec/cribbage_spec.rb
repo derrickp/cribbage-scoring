@@ -275,7 +275,7 @@ RSpec.describe Cribbage::Scoring do
     hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::TWO))
     hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::NINE)
     hand.is_crib = true
-    score = Cribbage::Scoring.score_flush(hand)
+    score = Cribbage::Scoring.score_runs(hand)
     expect(score).to eq 6 # Two runs
   end
 
@@ -313,5 +313,89 @@ RSpec.describe Cribbage::Scoring do
     hand.is_crib = true
     score = Cribbage::Scoring.score_fifteens(hand)
     expect(score).to eq 2
+  end
+
+  it "scores fifteens properly (multiple fifteens) kings/queens/fives" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::FIVE))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::TEN)
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::QUEEN))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::KING))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::NINE))
+    hand.is_crib = true
+    score = Cribbage::Scoring.score_fifteens(hand)
+    expect(score).to eq 6
+  end
+
+  it "scores fifteens properly (multiple fifteens)" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::SEVEN))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::EIGHT))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::SIX))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::NINE))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::TEN)
+    hand.is_crib = true
+    score = Cribbage::Scoring.score_fifteens(hand)
+    expect(score).to eq 4
+  end
+
+  it "scores fifteens properly (three card fifteen)" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::TWO))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::NINE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::QUEEN))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::FOUR))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::KING)
+    hand.is_crib = true
+    score = Cribbage::Scoring.score_fifteens(hand)
+    expect(score).to eq 2
+  end
+
+  it "scores fifteens properly (three 5s)" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::CLUBS, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::TWO))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::TWO)
+    hand.is_crib = true
+    score = Cribbage::Scoring.score_fifteens(hand)
+    expect(score).to eq 2
+  end
+
+  it "scores fifteens properly (four card fifteen)" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::THREE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::THREE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::FOUR))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::ACE)
+    hand.is_crib = true
+    score = Cribbage::Scoring.score_fifteens(hand)
+    expect(score).to eq 2
+  end
+
+  it "scores four fives properly" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::CLUBS, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::FIVE))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::ACE)
+    hand.is_crib = true
+    score = Cribbage::Scoring.score_fifteens(hand)
+    expect(score).to eq 8
+  end
+
+  it "scores four fives w/ jack properly" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::CLUBS, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::FIVE))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::JACK)
+    hand.is_crib = true
+    score = Cribbage::Scoring.score_fifteens(hand)
+    expect(score).to eq 16
   end
 end
