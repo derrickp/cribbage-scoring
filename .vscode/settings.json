@@ -1,13 +1,16 @@
 {
     "ruby.lint": {
-        "rubocop": true
+        "rubocop": false
     },
+    "editor.tabSize": 2,
     "files.exclude": {
         "**/.git": true,
         "**/.svn": true,
         "**/.hg": true,
         "**/CVS": true,
         "**/.DS_Store": true,
-        "vendor": true
+        "vendor": true,
+        "bin": true,
+        ".bundle": true
     }
 }
