@@ -3,7 +3,7 @@ require "cribbage/hand"
 
 module Cribbage
 
-  CARD_VALUES = {
+  FIFTEEN_VALUES = {
     Cribbage::CardNames::ACE => 1,
     Cribbage::CardNames::TWO => 2,
     Cribbage::CardNames::THREE => 3,
@@ -17,6 +17,22 @@ module Cribbage
     Cribbage::CardNames::JACK => 10,
     Cribbage::CardNames::QUEEN => 10,
     Cribbage::CardNames::KING => 10
+  }
+
+  RUN_VALUES = {
+    Cribbage::CardNames::ACE => 1,
+    Cribbage::CardNames::TWO => 2,
+    Cribbage::CardNames::THREE => 3,
+    Cribbage::CardNames::FOUR => 4,
+    Cribbage::CardNames::FIVE => 5,
+    Cribbage::CardNames::SIX => 6,
+    Cribbage::CardNames::SEVEN => 7,
+    Cribbage::CardNames::EIGHT => 8,
+    Cribbage::CardNames::NINE => 9,
+    Cribbage::CardNames::TEN => 10,
+    Cribbage::CardNames::JACK => 11,
+    Cribbage::CardNames::QUEEN => 12,
+    Cribbage::CardNames::KING => 13
   }
 
   # A module that provides utilities for scoring a hand of crib
@@ -93,8 +109,43 @@ module Cribbage
 
       full_hand = [].concat(hand.cards)
       full_hand.push(hand.cut_card) unless hand.cut_card.nil?
+      is_run = self.is_run(full_hand)
 
-      
+      # Score a point for every card in the hand if it's a run
+      return full_hand.length if is_run
+
+      run_size = full_hand.length - 1
+
+      # Loop as long as our runs wouldn't get too small, or we have points.
+      # Once we've scored a certain length of run (ex: 4)
+      # We don't want to score any smaller runs than that
+      while run_size >= 3 && points == 0
+        combos = full_hand.combination(run_size)
+        combos.each { |combo|
+          is_run = self.is_run(combo)
+          points += combo.length if is_run
+        }
+        run_size -= 1
+      end
+
+      # Once we're here, we have the points we should be scoring for the runs
+      points
+    end
+
+    def self.is_run(cards)
+      values = cards.map { |card| RUN_VALUES[card.name] }
+      sorted = values.sort
+      first = sorted[0]
+      last = sorted[-1]
+      len = sorted.length
+
+      # If first and last are too far apart, it's not a run
+      return false if (last - first) > (len - 1)
+      unique = sorted.uniq
+      # If all of the values are not unique, it's not a run
+      return false if unique != sorted
+      # If it passes those, it's a run
+      return true
     end
 
     def self.score_fifteens(hand)
@@ -103,7 +154,7 @@ module Cribbage
       full_hand.push(hand.cut_card) unless hand.cut_card.nil?
       combinations = self.get_card_combinations(full_hand, 2)
       combinations.each { |combo|
-        total = combo.inject(0) { |sum, card| sum + CARD_VALUES[card.name] }
+        total = combo.inject(0) { |sum, card| sum + FIFTEEN_VALUES[card.name] }
         points += 2 if total == 15
       }
       return points
