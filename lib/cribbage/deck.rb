@@ -3,14 +3,28 @@
 require "cribbage/card"
 
 module Cribbage
-  SUITS = %i[hearts clubs spades diamonds].freeze
-  CARD_NAMES = %i[ace two three four five six seven eight nine ten jack queen king].freeze
   class Deck
     attr_accessor :cards
     def initialize
       @all_cards = []
-      SUITS.each { |suit|
-      CARD_NAMES.each { |name|
+      suits = [ Cribbage::Suits::HEARTS, Cribbage::Suits::SPADES, Cribbage::Suits::DIAMONDS, Cribbage::Suits::CLUBS ]
+      names = [
+        Cribbage::CardNames::ACE,
+        Cribbage::CardNames::TWO,
+        Cribbage::CardNames::THREE,
+        Cribbage::CardNames::FOUR,
+        Cribbage::CardNames::FIVE,
+        Cribbage::CardNames::SIX,
+        Cribbage::CardNames::SEVEN,
+        Cribbage::CardNames::EIGHT,
+        Cribbage::CardNames::NINE,
+        Cribbage::CardNames::TEN,
+        Cribbage::CardNames::JACK,
+        Cribbage::CardNames::QUEEN,
+        Cribbage::CardNames::KING
+      ]
+      suits.each { |suit|
+      names.each { |name|
           card = Cribbage::Card.new(suit, name)
           @all_cards << card
         }
