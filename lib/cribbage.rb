@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
+require 'cards'
 require 'cribbage/version'
-require 'cribbage/card'
 require 'cribbage/hand'
-require 'cribbage/deck'
 require 'cribbage/game'
 require 'cribbage/scoring'
 

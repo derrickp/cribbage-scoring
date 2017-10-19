@@ -1,4 +1,5 @@
 require "bundler/setup"
+require "cards"
 require "cribbage"
 
 RSpec.configure do |config|

@@ -1,5 +1,5 @@
 
-require "cribbage/deck"
+require "cards"
 
 module Cribbage
 
@@ -13,7 +13,7 @@ module Cribbage
         raise RuntimeError "invalid number of players"
       end
 
-      @deck = Cribbage::Deck.new
+      @deck = Cards::Deck.new
     end
   end
 end
