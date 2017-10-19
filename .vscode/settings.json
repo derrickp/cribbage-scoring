@@ -1,6 +1,10 @@
 {
     "ruby.lint": {
-        "rubocop": false
+        "rubocop": true
+    },
+    "ruby.locate": {
+        "exclude": "{**/@(test|spec|tmp|.*),**/@(test|spec|tmp|.*)/**,**/*_spec.rb}",
+        "include": "**/*.rb"
     },
     "editor.tabSize": 2,
     "files.exclude": {

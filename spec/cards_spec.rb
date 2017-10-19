@@ -1,14 +1,16 @@
-require "spec_helper"
+# frozen_string_literal: true
+
+require 'spec_helper'
 
 RSpec.describe Cards::Card do
-  it "can create a card with a suit and name" do
+  it 'can create a card with a suit and name' do
     suit = Cards::Suits::SPADES
     name = Cards::Names::ACE
     card = Cards::Card.new(suit, name)
     expect(card).not_to be nil
   end
 
-  it "to_s gives a full description of the card" do
+  it 'to_s gives a full description of the card' do
     suit = Cards::Suits::SPADES
     name = Cards::Names::ACE
     card = Cards::Card.new(suit, name)
@@ -21,48 +23,48 @@ RSpec.describe Cards::Card do
 end
 
 RSpec.describe Cards::Deck do
-  it "can create a full deck of 52 cards" do
+  it 'can create a full deck of 52 cards' do
     deck = Cards::Deck.new
     expect(deck.cards.length).to eq 52
   end
 
-  it "can draw a card from the deck" do
+  it 'can draw a card from the deck' do
     deck = Cards::Deck.new
     card = deck.draw
     expect(card).not_to be nil
     expect(card.class).to eq Cards::Card
   end
 
-  it "never draws the same card twice from the deck" do
+  it 'never draws the same card twice from the deck' do
     deck = Cards::Deck.new
     cards = []
-    (1..52).each {
+    52.times do
       card = deck.draw
       expect(cards.include?(card)).to eq false
       cards << card
-    }
+    end
     expect(cards.length).to eq 52
     expect(deck.cards.length).to eq 0
   end
 
-  it "can reset the deck" do
+  it 'can reset the deck' do
     deck = Cards::Deck.new
-    (1..52).each {
+    52.times do
       deck.draw
-    }
+    end
     expect(deck.cards.length).to eq 0 # Shouldn't be any cards in the deck if we've drawn 52
     deck.reset
-    expect(deck.cards.length).to eq 52 #We've reset the deck, should be 52 again 
+    expect(deck.cards.length).to eq 52 # We've reset the deck, should be 52 again
   end
 end
 
 RSpec.describe Cards::Hand do
-  it "can create an empty hand of cards" do
+  it 'can create an empty hand of cards' do
     hand = Cards::Hand.new
     expect(hand).not_to be nil
   end
 
-  it "can add a card to the hand" do
+  it 'can add a card to the hand' do
     hand = Cards::Hand.new
     suit = Cards::Suits::SPADES
     name = Cards::Names::ACE
@@ -71,21 +73,21 @@ RSpec.describe Cards::Hand do
     expect(hand.cards.length).to eq 1
   end
 
-  it "invalid cards are not added to the hand" do
+  it 'invalid cards are not added to the hand' do
     hand = Cards::Hand.new
     error = nil
     begin
       hand.add_card(nil)
-      rescue => exception
-        error = exception
+    rescue Cards::InvalidCardError => exception
+      error = exception
     end
     expect(error.class).to eq Cards::InvalidCardError
 
     error = nil
     begin
       hand.add_card(2)
-      rescue => exception
-        error = exception
+    rescue Cards::InvalidCardError => exception
+      error = exception
     end
     expect(error.class).to eq Cards::InvalidCardError
 

@@ -6,3 +6,6 @@ AllCops:
     - config/**/*
     - bin/**/*
     - vendor/**/*
+
+Metrics/LineLength:
+  Max: 100

@@ -1,8 +1,12 @@
+# frozen_string_literal: true
 
 module Cards
   class InvalidCardError < RuntimeError
   end
 
+  # Model of a hand of cards.
+  # Very basic, does nothing except contain all the cards.
+  # Can be extended later
   class Hand
     attr_reader :cards
     def initialize
