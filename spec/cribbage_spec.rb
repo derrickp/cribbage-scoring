@@ -398,4 +398,15 @@ RSpec.describe Cribbage::Scoring do
     score = Cribbage::Scoring.score_fifteens(hand)
     expect(score).to eq 16
   end
+
+  it "scores four fives w/ jack properly (best hand)" do
+    hand = Cribbage::CribHand.new
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::JACK))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::SPADES, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::CLUBS, Cribbage::CardNames::FIVE))
+    hand.add_card(Cribbage::Card.new(Cribbage::Suits::DIAMONDS, Cribbage::CardNames::FIVE))
+    hand.cut_card = Cribbage::Card.new(Cribbage::Suits::HEARTS, Cribbage::CardNames::FIVE)
+    score = Cribbage::Scoring.score_hand(hand)
+    expect(score).to eq 29
+  end
 end

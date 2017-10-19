@@ -40,29 +40,23 @@ module Cribbage
     def self.score_hand(hand)
       points = 0
       points += self.score_pairs(hand)
+      points += self.score_fifteens(hand)
+      points += self.score_runs(hand)
+      points += self.score_flush(hand)
+      points += self.score_nobs(hand)
       return points
     end
 
     # Score the number of matching cards in the hand
     def self.score_pairs(hand)
       points = 0
-      # 1. Create a hash for each card to the number of them in the hand
-      card_count = Hash.new { |hash, key| hash[key] = 0 }
-      # 2. Loop through the cards in the hand and count the number of each card (ignoring suit)
-      hand.cards.each { |card|
-        card_count[card.name] += 1
-      }
+      
+      full_hand = [].concat(hand.cards)
+      full_hand.push(hand.cut_card) unless hand.cut_card.nil?
 
-      card_count[hand.cut_card.name] += 1 unless hand.cut_card.nil?
-
-      card_count.values.each { |count|
-        if count == 2
-          points += 2
-        elsif count == 3
-          points += 6
-        elsif count == 4
-          points += 12
-        end
+      duos = full_hand.combination(2)
+      duos.each { |duo|
+        points += 2 if duo[0].name == duo[1].name
       }
       return points
     end
