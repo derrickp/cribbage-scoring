@@ -66,9 +66,7 @@ module Cribbage
         crib.add_card(deck.draw)
       else
         # 4 people toss into the crib
-        while crib.cards.length < 4
-          players.each { |player| crib.add_card(player.hand.cards.pop) }
-        end
+        players.each { |player| crib.add_card(player.hand.cards.pop) } until crib.cards.length >= 4
         # Other people just discard
         discard_players = players.select { |player| player.hand.cards.length > 4 }
         discard_players.each { |player| player.hand.cards.pop } unless discard_players.empty?
