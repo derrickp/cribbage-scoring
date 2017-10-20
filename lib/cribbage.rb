@@ -3,6 +3,7 @@
 require 'cards'
 require 'cribbage/version'
 require 'cribbage/hand'
+require 'cribbage/player'
 require 'cribbage/game'
 require 'cribbage/scoring'
 

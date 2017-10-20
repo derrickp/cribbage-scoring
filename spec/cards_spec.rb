@@ -4,16 +4,16 @@ require 'spec_helper'
 
 RSpec.describe Cards::Card do
   it 'can create a card with a suit and name' do
-    suit = Cards::Suits::SPADES
-    name = Cards::Names::ACE
-    card = Cards::Card.new(suit, name)
+    suit = :spades
+    name = :ace
+    card = Cards::Card.new(name, suit)
     expect(card).not_to be nil
   end
 
   it 'to_s gives a full description of the card' do
-    suit = Cards::Suits::SPADES
-    name = Cards::Names::ACE
-    card = Cards::Card.new(suit, name)
+    suit = :spades
+    name = :ace
+    card = Cards::Card.new(name, suit)
     full = card.to_s.downcase
     suit_match = full[/hearts|clubs|spades|diamonds/]
     expect(suit_match).not_to be nil
@@ -66,31 +66,10 @@ RSpec.describe Cards::Hand do
 
   it 'can add a card to the hand' do
     hand = Cards::Hand.new
-    suit = Cards::Suits::SPADES
-    name = Cards::Names::ACE
-    card = Cards::Card.new(suit, name)
+    suit = :spades
+    name = :ace
+    card = Cards::Card.new(name, suit)
     hand.add_card(card)
     expect(hand.cards.length).to eq 1
-  end
-
-  it 'invalid cards are not added to the hand' do
-    hand = Cards::Hand.new
-    error = nil
-    begin
-      hand.add_card(nil)
-    rescue Cards::InvalidCardError => exception
-      error = exception
-    end
-    expect(error.class).to eq Cards::InvalidCardError
-
-    error = nil
-    begin
-      hand.add_card(2)
-    rescue Cards::InvalidCardError => exception
-      error = exception
-    end
-    expect(error.class).to eq Cards::InvalidCardError
-
-    expect(hand.cards.length).to eq 0
   end
 end

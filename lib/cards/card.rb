@@ -3,11 +3,11 @@
 module Cards
   # Models a single card from a basic deck
   class Card
-    attr_accessor :suit
     attr_accessor :name
-    def initialize(suit, name)
-      @suit = suit
+    attr_accessor :suit
+    def initialize(name, suit)
       @name = name
+      @suit = suit
     end
 
     def to_s

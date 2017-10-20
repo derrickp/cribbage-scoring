@@ -2,350 +2,574 @@
 
 require 'spec_helper'
 
+Hand = Cribbage::Hand
+Card = Cards::Card
+Scoring = Cribbage::Scoring
+
+def create_card(card_def)
+  parts = card_def.split(' ')
+  Card.new(parts[0].to_sym, parts[1].to_sym)
+end
+
+def create_cards(card_defs)
+  card_defs.map { |card_def| create_card(card_def) }
+end
+
 RSpec.describe Cribbage do
   it 'has a version number' do
     expect(Cribbage::VERSION).not_to be nil
   end
 end
 
-RSpec.describe Cribbage::Scoring do
-  it 'can score a hand properly for pairs (1 pair)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::NINE))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::KING))
-    score = Cribbage::Scoring.score_pairs(hand)
-    expect(score).to eq 2
+RSpec.describe Scoring do
+  let(:hand) do
+    Hand.new.tap do |hand|
+      cards.each { |card| hand.add_card(card) }
+      hand.cut_card = cut_card
+      hand.is_crib = is_crib
+    end
   end
 
-  it 'can score a hand properly for pairs (2 pairs)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::KING))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::KING))
-    score = Cribbage::Scoring.score_pairs(hand)
-    expect(score).to eq 4
+  describe 'fifteens' do
+    subject { Scoring.score_fifteens(hand) }
+    let(:is_crib) { false }
+    context 'single fifteen' do
+      let(:cards) do
+        create_cards(
+          [
+            'seven hearts',
+            'eight spades',
+            'six spades',
+            'four diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('ten hearts') }
+
+      it 'should score 2' do
+        expect(subject).to be 2
+      end
+    end
+
+    context 'multiple fifteens (kings/queens/fives)' do
+      let(:cards) do
+        create_cards(
+          [
+            'five hearts',
+            'ten hearts',
+            'queen spades',
+            'king spades'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('nine diamonds') }
+
+      it 'should score 6' do
+        expect(subject).to be 6
+      end
+    end
+
+    context 'multiple fifteens' do
+      let(:cards) do
+        create_cards(
+          [
+            'seven hearts',
+            'eight spades',
+            'six spades',
+            'nine diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('ten hearts') }
+
+      it 'should score 4' do
+        expect(subject).to be 4
+      end
+    end
+
+    context 'three card fifteen' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'nine spades',
+            'queen spades',
+            'four diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('king hearts') }
+
+      it 'should score 2' do
+        expect(subject).to be 2
+      end
+    end
+
+    context 'three 5s' do
+      let(:cards) do
+        create_cards(
+          [
+            'five hearts',
+            'five spades',
+            'five clubs',
+            'two diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('two hearts') }
+
+      it 'should score 2' do
+        expect(subject).to be 2
+      end
+    end
+
+    context 'four card fifteen' do
+      let(:cards) do
+        create_cards(
+          [
+            'three hearts',
+            'three spades',
+            'five spades',
+            'four diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('ace hearts') }
+
+      it 'should score 2' do
+        expect(subject).to be 2
+      end
+    end
+
+    context 'four fives' do
+      let(:cards) do
+        create_cards(
+          [
+            'five hearts',
+            'five spades',
+            'five clubs',
+            'five diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('ace hearts') }
+
+      it 'should score 8' do
+        expect(subject).to be 8
+      end
+    end
+
+    context 'four fives w/ jack' do
+      let(:cards) do
+        create_cards(
+          [
+            'five hearts',
+            'five spades',
+            'five clubs',
+            'five diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('jack hearts') }
+
+      it 'should be 16' do
+        expect(subject).to be 16
+      end
+    end
   end
 
-  it 'can score a hand properly for pairs (3 of a kind)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::KING))
-    score = Cribbage::Scoring.score_pairs(hand)
-    expect(score).to eq 6
+  describe 'pairs' do
+    subject { Scoring.score_pairs(hand) }
+    let(:is_crib) { false }
+    context '1 pair' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'two spapdes',
+            'nine hearts',
+            'king hearts'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('five clubs') }
+
+      it 'should score 2' do
+        expect(subject).to be 2
+      end
+    end
+
+    context '2 pairs' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'two spades',
+            'king hearts',
+            'king spades'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('five clubs') }
+
+      it 'should score 4' do
+        expect(subject).to be 4
+      end
+    end
+
+    context '3 of a kind' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'two spades',
+            'two clubs',
+            'king diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('five clubs') }
+
+      it 'should score 6' do
+        expect(subject).to be 6
+      end
+    end
+
+    context '4 of a kind' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'two spades',
+            'two clubs',
+            'two diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('five clubs') }
+
+      it 'should score 12' do
+        expect(subject).to be 12
+      end
+    end
+
+    context '3 of a kind w/ cut card' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'two spades',
+            'two clubs',
+            'king diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('two diamonds') }
+
+      it 'should score 12' do
+        expect(subject).to be 12
+      end
+    end
   end
 
-  it 'can score a hand properly for pairs (4 of a kind)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::TWO))
-    score = Cribbage::Scoring.score_pairs(hand)
-    expect(score).to eq 12
+  describe 'nobs' do
+    subject { Scoring.score_nobs(hand) }
+    let(:cards) do
+      create_cards(
+        [
+          'jack hearts',
+          'jack spades',
+          'queen hearts',
+          'six hearts'
+        ]
+      )
+    end
+    let(:cut_card) { create_card('four hearts') }
+
+    context 'hand is not crib' do
+      let(:is_crib) { false }
+
+      it 'should score 1' do
+        expect(subject).to be 1
+      end
+    end
+
+    context 'hand is crib' do
+      let(:is_crib) { true }
+
+      it 'should score 0' do
+        expect(subject).to be 0
+      end
+    end
+
+    context 'no cut card' do
+      let(:is_crib) { false }
+      let(:cut_card) { nil }
+
+      it 'should score 0' do
+        expect(subject).to be 0
+      end
+    end
   end
 
-  it 'can score a hand properly for pairs (3 of a kind) w/ cut card' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::KING))
-    hand.cut_card = Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::TWO)
-    score = Cribbage::Scoring.score_pairs(hand)
-    expect(score).to eq 12
+  describe 'flushes' do
+    subject { Scoring.score_flush(hand) }
+    describe 'hand is a flush' do
+      let(:cards) do
+        create_cards(
+          [
+            'jack hearts',
+            'eight hearts',
+            'queen hearts',
+            'six hearts'
+          ]
+        )
+      end
+
+      context 'is not a crib' do
+        let(:is_crib) { false }
+
+        context 'does not match cut card' do
+          let(:cut_card) { create_card('four spades') }
+
+          it 'should score 4' do
+            expect(subject).to be 4
+          end
+        end
+
+        context 'does match cut card' do
+          let(:cut_card) { create_card('four hearts') }
+
+          it 'should score 5' do
+            expect(subject).to be 5
+          end
+        end
+      end
+
+      context 'is a crib' do
+        let(:is_crib) { true }
+
+        context 'does not match cut card' do
+          let(:cut_card) { create_card('four spades') }
+
+          it 'should score 0' do
+            expect(subject).to be 0
+          end
+        end
+
+        context 'matches cut card' do
+          let(:cut_card) { create_card('four hearts') }
+
+          it 'should score 5' do
+            expect(subject).to be 5
+          end
+        end
+      end
+    end
   end
 
-  it 'can score nobs properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FOUR)
+  describe 'runs' do
+    subject { Scoring.score_runs(hand) }
+    let(:is_crib) { true }
+    let(:cut_card) { create_card('nine hearts') }
 
-    score = Cribbage::Scoring.score_nobs(hand)
-    expect(score).to eq 1
+    context '3-card run' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'three spades',
+            'four spades',
+            'jack diamonds'
+          ]
+        )
+      end
+
+      it 'should score 3' do
+        expect(subject).to be 3
+      end
+    end
+
+    context '4-card run' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'three spades',
+            'four spades',
+            'five diamonds'
+          ]
+        )
+      end
+
+      it 'should score 4' do
+        expect(subject).to be 4
+      end
+    end
+
+    context '5-card run' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'three spades',
+            'four spades',
+            'five diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('six hearts') }
+
+      it 'should score 5' do
+        expect(subject).to be 5
+      end
+    end
+
+    context 'double 3-card run' do
+      let(:cards) do
+        create_cards(
+          [
+            'two spades',
+            'three hearts',
+            'four spades',
+            'two diamonds'
+          ]
+        )
+      end
+
+      it 'should score 6' do
+        expect(subject).to eq 6
+      end
+    end
+
+    context 'triple 3-card run' do
+      let(:cards) do
+        create_cards(
+          [
+            'two spades',
+            'three spades',
+            'four hearts',
+            'two diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('two hearts') }
+
+      it 'should score 9' do
+        expect(subject).to eq 9
+      end
+    end
+
+    context 'double-double 3-card run' do
+      let(:cards) do
+        create_cards(
+          [
+            'two hearts',
+            'three spades',
+            'three spades',
+            'four diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('four hearts') }
+
+      it 'should score 12' do
+        expect(subject).to eq 12
+      end
+    end
   end
 
-  it 'does not score nobs when hand is crib' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FOUR)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_nobs(hand)
-    expect(score).to eq 0
-  end
+  describe 'full hand' do
+    subject { Scoring.score_hand(hand) }
+    let(:is_crib) { false }
 
-  it 'does not score nobs when hand does not have a cut card' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX))
-    score = Cribbage::Scoring.score_nobs(hand)
-    expect(score).to eq 0
-  end
+    context 'four fives w/ proper jack (best hand)' do
+      let(:cards) do
+        create_cards(
+          [
+            'jack hearts',
+            'five spades',
+            'five clubs',
+            'five diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('five hearts') }
 
-  it 'scores a flush (not a crib) does not match cut card' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::EIGHT))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX))
-    hand.cut_card = Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FOUR)
-    score = Cribbage::Scoring.score_flush(hand)
-    expect(score).to eq 4
-  end
+      it 'should score 29' do
+        expect(subject).to eq 29
+      end
+    end
 
-  it 'scores a flush (not a crib) matches cut card' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::EIGHT))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FOUR)
-    score = Cribbage::Scoring.score_flush(hand)
-    expect(score).to eq 5
-  end
+    context 'single run, 3 fifteens' do
+      let(:cards) do
+        create_cards(
+          [
+            'jack hearts',
+            'queen spades',
+            'king clubs',
+            'five diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('nine diamonds') }
 
-  it 'scores a flush (is a crib) does not match cut card' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::EIGHT))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX))
-    hand.cut_card = Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FOUR)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_flush(hand)
-    expect(score).to eq 0
-  end
+      it 'should score 9' do
+        expect(subject).to eq 9
+      end
+    end
 
-  it 'scores a flush (is a crib) matches cut card' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::EIGHT))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FOUR)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_flush(hand)
-    expect(score).to eq 5
-  end
+    context 'single run, 2 fifteens, no nobs because of crib' do
+      let(:is_crib) { true }
+      let(:cards) do
+        create_cards(
+          [
+            'jack hearts',
+            'nine spades',
+            'ten clubs',
+            'five diamonds'
+          ]
+        )
+      end
+      let(:cut_card) { create_card('four hearts') }
 
-  it 'scores a 3-card run properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FOUR))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::JACK))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::NINE)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_runs(hand)
-    expect(score).to eq 3
-  end
-
-  it 'scores a 4-card run properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FOUR))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::NINE)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_runs(hand)
-    expect(score).to eq 4
-  end
-
-  it 'scores a 5-card run properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FOUR))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SIX)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_runs(hand)
-    expect(score).to eq 5
-  end
-
-  it 'scores a double 3-card run properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FOUR))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::TWO))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::NINE)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_runs(hand)
-    expect(score).to eq 6 # Two runs
-  end
-
-  it 'scores a triple 3-card run properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FOUR))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::TWO))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_runs(hand)
-    expect(score).to eq 9 # 3 separate runs (9 points)
-  end
-
-  it 'scores a double-double 3-card run properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FOUR))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FOUR)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_runs(hand)
-    expect(score).to eq 12 # 4 separate runs of 3 (12 points)
-  end
-
-  it 'scores fifteens properly (single fifteen)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SEVEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::EIGHT))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::SIX))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FOUR))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TEN)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 2
-  end
-
-  it 'scores fifteens properly (multiple fifteens) kings/queens/fives' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TEN)
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::KING))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::NINE))
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 6
-  end
-
-  it 'scores fifteens properly (multiple fifteens)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::SEVEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::EIGHT))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::SIX))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::NINE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TEN)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 4
-  end
-
-  it 'scores fifteens properly (three card fifteen)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::NINE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FOUR))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::KING)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 2
-  end
-
-  it 'scores fifteens properly (three 5s)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::TWO))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::TWO)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 2
-  end
-
-  it 'scores fifteens properly (four card fifteen)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::THREE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FOUR))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::ACE)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 2
-  end
-
-  it 'scores four fives properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::ACE)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 8
-  end
-
-  it 'scores four fives w/ jack properly' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_fifteens(hand)
-    expect(score).to eq 16
-  end
-
-  it 'scores four fives w/ jack properly (best hand)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::FIVE))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FIVE)
-    score = Cribbage::Scoring.score_hand(hand)
-    expect(score).to eq 29
-  end
-
-  it 'scores a hand properly (single run, 3 fifteens)' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::QUEEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::KING))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::NINE)
-    score = Cribbage::Scoring.score_hand(hand)
-    expect(score).to eq 9
-  end
-
-  it 'scores a crib hand properly (single run, 2 fifteens) no nobs because of crib' do
-    hand = Cribbage::Hand.new
-    hand.add_card(Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::JACK))
-    hand.add_card(Cards::Card.new(Cards::Suits::SPADES, Cards::Names::NINE))
-    hand.add_card(Cards::Card.new(Cards::Suits::CLUBS, Cards::Names::TEN))
-    hand.add_card(Cards::Card.new(Cards::Suits::DIAMONDS, Cards::Names::FIVE))
-    hand.cut_card = Cards::Card.new(Cards::Suits::HEARTS, Cards::Names::FOUR)
-    hand.is_crib = true
-    score = Cribbage::Scoring.score_hand(hand)
-    expect(score).to eq 7
+      it 'should score 7' do
+        expect(subject).to eq 7
+      end
+    end
   end
 end
 
-RSpec.describe Cribbage::Game do
-  it 'can create a game with default number of players' do
+Game = Cribbage::Game
+
+RSpec.describe Game do
+  let(:game) do
+    return Game.new(num_players) unless num_players.nil?
+    Game.new
+  end
+
+  describe 'default game' do
+    subject { game.players }
+
+    context 'default number of players' do
+      let(:num_players) { nil }
+
+      it 'number of players should be 2' do
+        expect(subject.length).to eq 2
+      end
+    end
+
+    # context 'more players' do
+    #   let(:num_players) { 4 }
+
+    #   it 'number of players should be 4' do
+    #     expect(subject.length).to eq 4
+    #   end
+    # end
+  end
+
+  it 'deals a hand properly to each player' do
     game = Cribbage::Game.new
-    expect(game).not_to be nil
+    game.deal
   end
 end

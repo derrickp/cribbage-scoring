@@ -5,35 +5,35 @@ require 'cribbage/hand'
 
 module Cribbage
   FIFTEEN_VALUES = {
-    Cards::Names::ACE => 1,
-    Cards::Names::TWO => 2,
-    Cards::Names::THREE => 3,
-    Cards::Names::FOUR => 4,
-    Cards::Names::FIVE => 5,
-    Cards::Names::SIX => 6,
-    Cards::Names::SEVEN => 7,
-    Cards::Names::EIGHT => 8,
-    Cards::Names::NINE => 9,
-    Cards::Names::TEN => 10,
-    Cards::Names::JACK => 10,
-    Cards::Names::QUEEN => 10,
-    Cards::Names::KING => 10
+    ace: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    jack: 10,
+    queen: 10,
+    king: 10
   }.freeze
 
   RUN_VALUES = {
-    Cards::Names::ACE => 1,
-    Cards::Names::TWO => 2,
-    Cards::Names::THREE => 3,
-    Cards::Names::FOUR => 4,
-    Cards::Names::FIVE => 5,
-    Cards::Names::SIX => 6,
-    Cards::Names::SEVEN => 7,
-    Cards::Names::EIGHT => 8,
-    Cards::Names::NINE => 9,
-    Cards::Names::TEN => 10,
-    Cards::Names::JACK => 11,
-    Cards::Names::QUEEN => 12,
-    Cards::Names::KING => 13
+    ace: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9,
+    ten: 10,
+    jack: 11,
+    queen: 12,
+    king: 13
   }.freeze
 
   # A module that provides utilities for scoring a hand of crib
@@ -68,7 +68,7 @@ module Cribbage
 
       # 1. Get all the jacks from the hand
       matching_jacks = hand.cards.select do |card|
-        card.name == Cards::Names::JACK && card.suit == hand.cut_card.suit
+        card.name == :jack && card.suit == hand.cut_card.suit
       end
 
       # 2. We have a matching jack? Score a point
@@ -130,14 +130,20 @@ module Cribbage
 
     def self.score_fifteens(hand)
       points = 0
+      return points if hand.cards.empty?
       full_hand = [].concat(hand.cards)
       full_hand.push(hand.cut_card) unless hand.cut_card.nil?
       combinations = get_card_combinations(full_hand, 2)
       combinations.each do |combo|
-        total = combo.inject(0) { |sum, card| sum + FIFTEEN_VALUES[card.name] }
-        points += 2 if total == 15
+        points += 2 if fifteen?(combo)
       end
       points
+    end
+
+    private_class_method
+    def self.fifteen?(cards)
+      total = cards.inject(0) { |sum, card| sum + FIFTEEN_VALUES[card.name] }
+      total == 15
     end
 
     def self.get_card_combinations(cards, min_size)
