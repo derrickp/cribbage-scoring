@@ -9,8 +9,8 @@ module Cards
     attr_accessor :cards
     def initialize
       @all_cards = []
-      Cards::SUITS.each do |suit|
-        Cards::NAMES.each { |name| @all_cards << Cards::Card.new(name, suit) }
+      SUITS.each do |suit|
+        NAMES.each { |name| @all_cards << Cards::Card.new(name, suit) }
       end
       @cards = @all_cards.shuffle
     end
