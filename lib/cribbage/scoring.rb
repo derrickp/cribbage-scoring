@@ -54,7 +54,7 @@ module Cribbage
       full_hand.push(hand.cut_card) unless hand.cut_card.nil?
 
       duos = full_hand.combination(2)
-      duos.inject(0) { |sum, duo| sum + (duo[0].name == duo[1].name ? 2 : 0) }
+      duos.reduce(0) { |sum, duo| sum + (duo[0].name == duo[1].name ? 2 : 0) }
     end
 
     def self.score_nobs(hand)
@@ -109,7 +109,7 @@ module Cribbage
 
     def self.score_run(cards, run_size)
       combos = cards.combination(run_size)
-      combos.inject(0) { |sum, combo| sum + (run?(combo) ? combo.length : 0) }
+      combos.reduce(0) { |sum, combo| sum + (run?(combo) ? combo.length : 0) }
     end
 
     def self.run?(cards)
@@ -142,7 +142,7 @@ module Cribbage
 
     private_class_method
     def self.fifteen?(cards)
-      total = cards.inject(0) { |sum, card| sum + FIFTEEN_VALUES[card.name] }
+      total = cards.reduce(0) { |sum, card| sum + FIFTEEN_VALUES[card.name] }
       total == 15
     end
 
