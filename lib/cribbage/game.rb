@@ -76,10 +76,13 @@ module Cribbage
     end
 
     def score
+      scorer = BasicScore.new
       @players.each do |player|
-        player.score = BasicScore.new(player.hand).total
+        scorer.hand = player.hand
+        player.score = scorer.total
       end
-      dealer.score += BasicScore.new(dealer.crib).total
+      scorer.hand = dealer.crib
+      dealer.score += scorer.total
     end
   end
 end

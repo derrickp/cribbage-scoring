@@ -32,7 +32,7 @@ module Cribbage
         let(:cut_card) { create_card('TH') }
 
         it 'should score 2' do
-          expect(subject.fifteens).to be 2
+          expect(subject.fifteens).to eq 2
         end
       end
 
@@ -43,7 +43,7 @@ module Cribbage
         let(:cut_card) { create_card('9D') }
 
         it 'should score 6' do
-          expect(subject.fifteens).to be 6
+          expect(subject.fifteens).to eq 6
         end
       end
 
@@ -54,7 +54,7 @@ module Cribbage
         let(:cut_card) { create_card('TH') }
 
         it 'should score 4' do
-          expect(subject.fifteens).to be 4
+          expect(subject.fifteens).to eq 4
         end
       end
 
@@ -65,7 +65,7 @@ module Cribbage
         let(:cut_card) { create_card('KH') }
 
         it 'should score 2' do
-          expect(subject.fifteens).to be 2
+          expect(subject.fifteens).to eq 2
         end
       end
 
@@ -76,7 +76,7 @@ module Cribbage
         let(:cut_card) { create_card('2H') }
 
         it 'should score 2' do
-          expect(subject.fifteens).to be 2
+          expect(subject.fifteens).to eq 2
         end
       end
 
@@ -87,7 +87,7 @@ module Cribbage
         let(:cut_card) { create_card('AH') }
 
         it 'should score 2' do
-          expect(subject.fifteens).to be 2
+          expect(subject.fifteens).to eq 2
         end
       end
 
@@ -98,7 +98,7 @@ module Cribbage
         let(:cut_card) { create_card('AH') }
 
         it 'should score 8' do
-          expect(subject.fifteens).to be 8
+          expect(subject.fifteens).to eq 8
         end
       end
 
@@ -109,7 +109,7 @@ module Cribbage
         let(:cut_card) { create_card('JH') }
 
         it 'should be 16' do
-          expect(subject.fifteens).to be 16
+          expect(subject.fifteens).to eq 16
         end
       end
     end
@@ -124,7 +124,7 @@ module Cribbage
         let(:cut_card) { create_card('5C') }
 
         it 'should score 2' do
-          expect(subject.pairs).to be 2
+          expect(subject.pairs).to eq 2
         end
       end
 
@@ -135,7 +135,7 @@ module Cribbage
         let(:cut_card) { create_card('5C') }
 
         it 'should score 4' do
-          expect(subject.pairs).to be 4
+          expect(subject.pairs).to eq 4
         end
       end
 
@@ -146,7 +146,7 @@ module Cribbage
         let(:cut_card) { create_card('5C') }
 
         it 'should score 6' do
-          expect(subject.pairs).to be 6
+          expect(subject.pairs).to eq 6
         end
       end
 
@@ -157,7 +157,7 @@ module Cribbage
         let(:cut_card) { create_card('5C') }
 
         it 'should score 12' do
-          expect(subject.pairs).to be 12
+          expect(subject.pairs).to eq 12
         end
       end
 
@@ -168,7 +168,7 @@ module Cribbage
         let(:cut_card) { create_card('2D') }
 
         it 'should score 12' do
-          expect(subject.pairs).to be 12
+          expect(subject.pairs).to eq 12
         end
       end
     end
@@ -184,7 +184,7 @@ module Cribbage
         let(:is_crib) { false }
 
         it 'should score 1' do
-          expect(subject.nobs).to be 1
+          expect(subject.nobs).to eq 1
         end
       end
 
@@ -192,7 +192,7 @@ module Cribbage
         let(:is_crib) { true }
 
         it 'should score 0' do
-          expect(subject.nobs).to be 0
+          expect(subject.nobs).to eq 0
         end
       end
 
@@ -201,7 +201,7 @@ module Cribbage
         let(:cut_card) { nil }
 
         it 'should score 0' do
-          expect(subject.nobs).to be 0
+          expect(subject.nobs).to eq 0
         end
       end
     end
@@ -220,7 +220,7 @@ module Cribbage
             let(:cut_card) { create_card('4S') }
 
             it 'should score 4' do
-              expect(subject.flushes).to be 4
+              expect(subject.flushes).to eq 4
             end
           end
 
@@ -228,7 +228,7 @@ module Cribbage
             let(:cut_card) { create_card('4H') }
 
             it 'should score 5' do
-              expect(subject.flushes).to be 5
+              expect(subject.flushes).to eq 5
             end
           end
         end
@@ -240,7 +240,7 @@ module Cribbage
             let(:cut_card) { create_card('4S') }
 
             it 'should score 0' do
-              expect(subject.flushes).to be 0
+              expect(subject.flushes).to eq 0
             end
           end
 
@@ -248,7 +248,7 @@ module Cribbage
             let(:cut_card) { create_card('4H') }
 
             it 'should score 5' do
-              expect(subject.flushes).to be 5
+              expect(subject.flushes).to eq 5
             end
           end
         end
@@ -266,7 +266,7 @@ module Cribbage
         end
 
         it 'should score 3' do
-          expect(subject.runs).to be 3
+          expect(subject.runs).to eq 3
         end
       end
 
@@ -276,7 +276,7 @@ module Cribbage
         end
 
         it 'should score 4' do
-          expect(subject.runs).to be 4
+          expect(subject.runs).to eq 4
         end
       end
 
@@ -287,7 +287,7 @@ module Cribbage
         let(:cut_card) { create_card('6H') }
 
         it 'should score 5' do
-          expect(subject.runs).to be 5
+          expect(subject.runs).to eq 5
         end
       end
 
@@ -324,7 +324,7 @@ module Cribbage
       end
     end
 
-    describe 'full hand' do
+    describe 'total' do
       subject { BasicScore.new(hand) }
       let(:is_crib) { false }
 
@@ -359,6 +359,109 @@ module Cribbage
 
         it 'should score 7' do
           expect(subject.total).to eq 7
+        end
+      end
+    end
+  end
+
+  RSpec.describe DoubleScore do
+    let(:hand) do
+      Hand.new.tap do |hand|
+        cards.each { |card| hand.add_card(card) }
+        hand.cut_card = cut_card
+        hand.is_crib = is_crib
+      end
+    end
+
+    describe 'fifteens' do
+      let(:is_crib) { false }
+      subject { DoubleScore.new(hand) }
+
+      context 'single fifteen' do
+        let(:cards) do
+          create_cards('7H 8S 6S 4D')
+        end
+        let(:cut_card) { create_card('TH') }
+
+        it 'should score 4' do
+          expect(subject.fifteens).to eq 4
+        end
+      end
+
+      context 'multiple fifteens (kings/queens/fives)' do
+        let(:cards) do
+          create_cards('5H TH QS KS')
+        end
+        let(:cut_card) { create_card('9D') }
+
+        it 'should score 12' do
+          expect(subject.fifteens).to eq 12
+        end
+      end
+
+      context 'multiple fifteens' do
+        let(:cards) do
+          create_cards('7H 8S 6S 9D')
+        end
+        let(:cut_card) { create_card('TH') }
+
+        it 'should score 8' do
+          expect(subject.fifteens).to eq 8
+        end
+      end
+
+      context 'three card fifteen' do
+        let(:cards) do
+          create_cards('2H 9S QS 4D')
+        end
+        let(:cut_card) { create_card('KH') }
+
+        it 'should score 4' do
+          expect(subject.fifteens).to eq 4
+        end
+      end
+
+      context 'three 5s' do
+        let(:cards) do
+          create_cards('5H 5S 5C 2D')
+        end
+        let(:cut_card) { create_card('2H') }
+
+        it 'should score 4' do
+          expect(subject.fifteens).to eq 4
+        end
+      end
+
+      context 'four card fifteen' do
+        let(:cards) do
+          create_cards('3H 3S 5S 4D')
+        end
+        let(:cut_card) { create_card('AH') }
+
+        it 'should score 4' do
+          expect(subject.fifteens).to eq 4
+        end
+      end
+
+      context 'four fives' do
+        let(:cards) do
+          create_cards('5H 5S 5C 5D')
+        end
+        let(:cut_card) { create_card('AH') }
+
+        it 'should score 16' do
+          expect(subject.fifteens).to eq 16
+        end
+      end
+
+      context 'four fives w/ jack' do
+        let(:cards) do
+          create_cards('5H 5S 5C 5D')
+        end
+        let(:cut_card) { create_card('JH') }
+
+        it 'should be 32' do
+          expect(subject.fifteens).to eq 32
         end
       end
     end

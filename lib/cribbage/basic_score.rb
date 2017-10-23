@@ -5,11 +5,22 @@ require_relative 'hand'
 require_relative 'support/score_helper'
 
 module Cribbage
+  # A basic crib scoring class
+  # Provides functions for scoring the given hand of crib
   class BasicScore
-    def initialize(hand)
-      @hand = hand
-      @all_cards = [].concat(hand.cards)
-      @all_cards.push(@hand.cut_card) unless @hand.cut_card.nil?
+    attr_reader :hand
+    def initialize(hand = nil)
+      self.hand = hand
+    end
+
+    def hand=(value)
+      @hand = value
+      if value.nil?
+        @all_cards = []
+      else
+        @all_cards = [].concat(value.cards)
+        @all_cards.push(value.cut_card) unless value.cut_card.nil?
+      end
     end
 
     def fifteens
@@ -49,8 +60,8 @@ module Cribbage
       # We don't want to score any smaller runs than that
       while run_size >= 3 && score.zero?
         combos = @all_cards.combination(run_size)
-        score = combos.reduce(0) { |sum, combo| sum + (ScoreHelper.run?(combo) ? combo.length : 0) }
         run_size -= 1
+        score = combos.reduce(0) { |sum, combo| sum + (ScoreHelper.run?(combo) ? combo.length : 0) }
       end
       score
     end
@@ -61,7 +72,7 @@ module Cribbage
       score += flushes
       score += nobs
       score += pairs
-      score += runs
+      score + runs
     end
   end
 end
