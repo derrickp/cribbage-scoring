@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'cribbage/player'
+require_relative 'player'
+require_relative 'basic_score'
 
 module Cribbage
   # A tracker for a single game of crib. Created with a number of players.
@@ -76,9 +77,9 @@ module Cribbage
 
     def score
       @players.each do |player|
-        player.score = Scoring.score_hand(player.hand)
+        player.score = BasicScore.new(player.hand).total
       end
-      self.dealer.score += Scoring.score_hand(self.dealer.crib)
+      dealer.score += BasicScore.new(dealer.crib).total
     end
   end
 end

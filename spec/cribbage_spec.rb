@@ -1,17 +1,9 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require_relative 'support/card_helper'
 
 Card = Cards::Card
-
-def create_card(card_def)
-  parts = card_def.split(' ')
-  Card.new(parts[0].to_sym, parts[1].to_sym)
-end
-
-def create_cards(card_defs)
-  card_defs.map { |card_def| create_card(card_def) }
-end
 
 module Cribbage
   RSpec.describe Cribbage do
@@ -20,7 +12,7 @@ module Cribbage
     end
   end
 
-  RSpec.describe Scoring do
+  RSpec.describe BasicScore do
     let(:hand) do
       Hand.new.tap do |hand|
         cards.each { |card| hand.add_card(card) }
@@ -30,266 +22,169 @@ module Cribbage
     end
 
     describe 'fifteens' do
-      subject { Scoring.score_fifteens(hand) }
       let(:is_crib) { false }
+      subject { BasicScore.new(hand) }
+
       context 'single fifteen' do
         let(:cards) do
-          create_cards(
-            [
-              'seven hearts',
-              'eight spades',
-              'six spades',
-              'four diamonds'
-            ]
-          )
+          create_cards('7H 8S 6S 4D')
         end
-        let(:cut_card) { create_card('ten hearts') }
+        let(:cut_card) { create_card('TH') }
 
         it 'should score 2' do
-          expect(subject).to be 2
+          expect(subject.fifteens).to be 2
         end
       end
 
       context 'multiple fifteens (kings/queens/fives)' do
         let(:cards) do
-          create_cards(
-            [
-              'five hearts',
-              'ten hearts',
-              'queen spades',
-              'king spades'
-            ]
-          )
+          create_cards('5H TH QS KS')
         end
-        let(:cut_card) { create_card('nine diamonds') }
+        let(:cut_card) { create_card('9D') }
 
         it 'should score 6' do
-          expect(subject).to be 6
+          expect(subject.fifteens).to be 6
         end
       end
 
       context 'multiple fifteens' do
         let(:cards) do
-          create_cards(
-            [
-              'seven hearts',
-              'eight spades',
-              'six spades',
-              'nine diamonds'
-            ]
-          )
+          create_cards('7H 8S 6S 9D')
         end
-        let(:cut_card) { create_card('ten hearts') }
+        let(:cut_card) { create_card('TH') }
 
         it 'should score 4' do
-          expect(subject).to be 4
+          expect(subject.fifteens).to be 4
         end
       end
 
       context 'three card fifteen' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'nine spades',
-              'queen spades',
-              'four diamonds'
-            ]
-          )
+          create_cards('2H 9S QS 4D')
         end
-        let(:cut_card) { create_card('king hearts') }
+        let(:cut_card) { create_card('KH') }
 
         it 'should score 2' do
-          expect(subject).to be 2
+          expect(subject.fifteens).to be 2
         end
       end
 
       context 'three 5s' do
         let(:cards) do
-          create_cards(
-            [
-              'five hearts',
-              'five spades',
-              'five clubs',
-              'two diamonds'
-            ]
-          )
+          create_cards('5H 5S 5C 2D')
         end
-        let(:cut_card) { create_card('two hearts') }
+        let(:cut_card) { create_card('2H') }
 
         it 'should score 2' do
-          expect(subject).to be 2
+          expect(subject.fifteens).to be 2
         end
       end
 
       context 'four card fifteen' do
         let(:cards) do
-          create_cards(
-            [
-              'three hearts',
-              'three spades',
-              'five spades',
-              'four diamonds'
-            ]
-          )
+          create_cards('3H 3S 5S 4D')
         end
-        let(:cut_card) { create_card('ace hearts') }
+        let(:cut_card) { create_card('AH') }
 
         it 'should score 2' do
-          expect(subject).to be 2
+          expect(subject.fifteens).to be 2
         end
       end
 
       context 'four fives' do
         let(:cards) do
-          create_cards(
-            [
-              'five hearts',
-              'five spades',
-              'five clubs',
-              'five diamonds'
-            ]
-          )
+          create_cards('5H 5S 5C 5D')
         end
-        let(:cut_card) { create_card('ace hearts') }
+        let(:cut_card) { create_card('AH') }
 
         it 'should score 8' do
-          expect(subject).to be 8
+          expect(subject.fifteens).to be 8
         end
       end
 
       context 'four fives w/ jack' do
         let(:cards) do
-          create_cards(
-            [
-              'five hearts',
-              'five spades',
-              'five clubs',
-              'five diamonds'
-            ]
-          )
+          create_cards('5H 5S 5C 5D')
         end
-        let(:cut_card) { create_card('jack hearts') }
+        let(:cut_card) { create_card('JH') }
 
         it 'should be 16' do
-          expect(subject).to be 16
+          expect(subject.fifteens).to be 16
         end
       end
     end
 
     describe 'pairs' do
-      subject { Scoring.score_pairs(hand) }
+      subject { BasicScore.new(hand) }
       let(:is_crib) { false }
       context '1 pair' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'two spapdes',
-              'nine hearts',
-              'king hearts'
-            ]
-          )
+          create_cards('2H 2S 9H KH')
         end
-        let(:cut_card) { create_card('five clubs') }
+        let(:cut_card) { create_card('5C') }
 
         it 'should score 2' do
-          expect(subject).to be 2
+          expect(subject.pairs).to be 2
         end
       end
 
       context '2 pairs' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'two spades',
-              'king hearts',
-              'king spades'
-            ]
-          )
+          create_cards('2H 2S KH KS')
         end
-        let(:cut_card) { create_card('five clubs') }
+        let(:cut_card) { create_card('5C') }
 
         it 'should score 4' do
-          expect(subject).to be 4
+          expect(subject.pairs).to be 4
         end
       end
 
       context '3 of a kind' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'two spades',
-              'two clubs',
-              'king diamonds'
-            ]
-          )
+          create_cards('2H 2S 2C KD')
         end
-        let(:cut_card) { create_card('five clubs') }
+        let(:cut_card) { create_card('5C') }
 
         it 'should score 6' do
-          expect(subject).to be 6
+          expect(subject.pairs).to be 6
         end
       end
 
       context '4 of a kind' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'two spades',
-              'two clubs',
-              'two diamonds'
-            ]
-          )
+          create_cards('2H 2S 2C 2D')
         end
-        let(:cut_card) { create_card('five clubs') }
+        let(:cut_card) { create_card('5C') }
 
         it 'should score 12' do
-          expect(subject).to be 12
+          expect(subject.pairs).to be 12
         end
       end
 
       context '3 of a kind w/ cut card' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'two spades',
-              'two clubs',
-              'king diamonds'
-            ]
-          )
+          create_cards('2H 2S 2C KD')
         end
-        let(:cut_card) { create_card('two diamonds') }
+        let(:cut_card) { create_card('2D') }
 
         it 'should score 12' do
-          expect(subject).to be 12
+          expect(subject.pairs).to be 12
         end
       end
     end
 
     describe 'nobs' do
-      subject { Scoring.score_nobs(hand) }
+      subject { BasicScore.new(hand) }
       let(:cards) do
-        create_cards(
-          [
-            'jack hearts',
-            'jack spades',
-            'queen hearts',
-            'six hearts'
-          ]
-        )
+        create_cards('JH JS QH 6H')
       end
-      let(:cut_card) { create_card('four hearts') }
+      let(:cut_card) { create_card('4H') }
 
       context 'hand is not crib' do
         let(:is_crib) { false }
 
         it 'should score 1' do
-          expect(subject).to be 1
+          expect(subject.nobs).to be 1
         end
       end
 
@@ -297,7 +192,7 @@ module Cribbage
         let(:is_crib) { true }
 
         it 'should score 0' do
-          expect(subject).to be 0
+          expect(subject.nobs).to be 0
         end
       end
 
@@ -306,41 +201,34 @@ module Cribbage
         let(:cut_card) { nil }
 
         it 'should score 0' do
-          expect(subject).to be 0
+          expect(subject.nobs).to be 0
         end
       end
     end
 
     describe 'flushes' do
-      subject { Scoring.score_flush(hand) }
+      subject { BasicScore.new(hand) }
       describe 'hand is a flush' do
         let(:cards) do
-          create_cards(
-            [
-              'jack hearts',
-              'eight hearts',
-              'queen hearts',
-              'six hearts'
-            ]
-          )
+          create_cards('JH 8H QH 6H')
         end
 
         context 'is not a crib' do
           let(:is_crib) { false }
 
           context 'does not match cut card' do
-            let(:cut_card) { create_card('four spades') }
+            let(:cut_card) { create_card('4S') }
 
             it 'should score 4' do
-              expect(subject).to be 4
+              expect(subject.flushes).to be 4
             end
           end
 
           context 'does match cut card' do
-            let(:cut_card) { create_card('four hearts') }
+            let(:cut_card) { create_card('4H') }
 
             it 'should score 5' do
-              expect(subject).to be 5
+              expect(subject.flushes).to be 5
             end
           end
         end
@@ -349,18 +237,18 @@ module Cribbage
           let(:is_crib) { true }
 
           context 'does not match cut card' do
-            let(:cut_card) { create_card('four spades') }
+            let(:cut_card) { create_card('4S') }
 
             it 'should score 0' do
-              expect(subject).to be 0
+              expect(subject.flushes).to be 0
             end
           end
 
           context 'matches cut card' do
-            let(:cut_card) { create_card('four hearts') }
+            let(:cut_card) { create_card('4H') }
 
             it 'should score 5' do
-              expect(subject).to be 5
+              expect(subject.flushes).to be 5
             end
           end
         end
@@ -368,172 +256,109 @@ module Cribbage
     end
 
     describe 'runs' do
-      subject { Scoring.score_runs(hand) }
+      subject { BasicScore.new(hand) }
       let(:is_crib) { true }
-      let(:cut_card) { create_card('nine hearts') }
+      let(:cut_card) { create_card('9H') }
 
       context '3-card run' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'three spades',
-              'four spades',
-              'jack diamonds'
-            ]
-          )
+          create_cards('2H 3S 4S JD')
         end
 
         it 'should score 3' do
-          expect(subject).to be 3
+          expect(subject.runs).to be 3
         end
       end
 
       context '4-card run' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'three spades',
-              'four spades',
-              'five diamonds'
-            ]
-          )
+          create_cards('2H 3S 4S 5D')
         end
 
         it 'should score 4' do
-          expect(subject).to be 4
+          expect(subject.runs).to be 4
         end
       end
 
       context '5-card run' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'three spades',
-              'four spades',
-              'five diamonds'
-            ]
-          )
+          create_cards('2H 3S 4S 5D')
         end
-        let(:cut_card) { create_card('six hearts') }
+        let(:cut_card) { create_card('6H') }
 
         it 'should score 5' do
-          expect(subject).to be 5
+          expect(subject.runs).to be 5
         end
       end
 
       context 'double 3-card run' do
         let(:cards) do
-          create_cards(
-            [
-              'two spades',
-              'three hearts',
-              'four spades',
-              'two diamonds'
-            ]
-          )
+          create_cards('2S 3H 4S 2D')
         end
 
         it 'should score 6' do
-          expect(subject).to eq 6
+          expect(subject.runs).to eq 6
         end
       end
 
       context 'triple 3-card run' do
         let(:cards) do
-          create_cards(
-            [
-              'two spades',
-              'three spades',
-              'four hearts',
-              'two diamonds'
-            ]
-          )
+          create_cards('2S 3S 4H 2D')
         end
-        let(:cut_card) { create_card('two hearts') }
+        let(:cut_card) { create_card('2H') }
 
         it 'should score 9' do
-          expect(subject).to eq 9
+          expect(subject.runs).to eq 9
         end
       end
 
       context 'double-double 3-card run' do
         let(:cards) do
-          create_cards(
-            [
-              'two hearts',
-              'three spades',
-              'three spades',
-              'four diamonds'
-            ]
-          )
+          create_cards('2H 3S 3C 4D')
         end
-        let(:cut_card) { create_card('four hearts') }
+        let(:cut_card) { create_card('4H') }
 
         it 'should score 12' do
-          expect(subject).to eq 12
+          expect(subject.runs).to eq 12
         end
       end
     end
 
     describe 'full hand' do
-      subject { Scoring.score_hand(hand) }
+      subject { BasicScore.new(hand) }
       let(:is_crib) { false }
 
       context 'four fives w/ proper jack (best hand)' do
         let(:cards) do
-          create_cards(
-            [
-              'jack hearts',
-              'five spades',
-              'five clubs',
-              'five diamonds'
-            ]
-          )
+          create_cards('JH 5S 5C 5D')
         end
-        let(:cut_card) { create_card('five hearts') }
+        let(:cut_card) { create_card('5H') }
 
         it 'should score 29' do
-          expect(subject).to eq 29
+          expect(subject.total).to eq 29
         end
       end
 
       context 'single run, 3 fifteens' do
         let(:cards) do
-          create_cards(
-            [
-              'jack hearts',
-              'queen spades',
-              'king clubs',
-              'five diamonds'
-            ]
-          )
+          create_cards('JH QS KC 5D')
         end
-        let(:cut_card) { create_card('nine diamonds') }
+        let(:cut_card) { create_card('9D') }
 
         it 'should score 9' do
-          expect(subject).to eq 9
+          expect(subject.total).to eq 9
         end
       end
 
       context 'single run, 2 fifteens, no nobs because of crib' do
         let(:is_crib) { true }
         let(:cards) do
-          create_cards(
-            [
-              'jack hearts',
-              'nine spades',
-              'ten clubs',
-              'five diamonds'
-            ]
-          )
+          create_cards('JH 9S TC 5D')
         end
-        let(:cut_card) { create_card('four hearts') }
+        let(:cut_card) { create_card('4H') }
 
         it 'should score 7' do
-          expect(subject).to eq 7
+          expect(subject.total).to eq 7
         end
       end
     end

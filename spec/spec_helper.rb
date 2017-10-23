@@ -3,6 +3,7 @@
 require 'bundler/setup'
 require 'cards'
 require 'cribbage'
+require 'support/card_helper'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
