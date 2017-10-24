@@ -9,8 +9,9 @@ module Cribbage
   # Provides functions for scoring the given hand of crib
   class BasicScore
     attr_reader :hand
-    def initialize(hand = nil)
+    def initialize(hand = nil, score_helper = ScoreHelper.new)
       self.hand = hand
+      @sh = score_helper
     end
 
     def hand=(value)
@@ -24,12 +25,12 @@ module Cribbage
     end
 
     def fifteens
-      count = ScoreHelper.num_fifteens(@all_cards)
+      count = @sh.num_fifteens(@all_cards)
       count * 2
     end
 
     def flushes
-      is_flush = ScoreHelper.flush?(@hand.cards)
+      is_flush = @sh.flush?(@hand.cards)
       cut_match = @hand.cut_card.suit == @hand.cards.first.suit
       min_score = @hand.cards.length
       return min_score + 1 if is_flush && cut_match
@@ -47,7 +48,7 @@ module Cribbage
     end
 
     def pairs
-      count = ScoreHelper.num_pairs(@all_cards)
+      count = @sh.num_pairs(@all_cards)
       count * 2
     end
 
@@ -61,18 +62,13 @@ module Cribbage
       while run_size >= 3 && score.zero?
         combos = @all_cards.combination(run_size)
         run_size -= 1
-        score = combos.reduce(0) { |sum, combo| sum + (ScoreHelper.run?(combo) ? combo.length : 0) }
+        score = combos.reduce(0) { |sum, combo| sum + (@sh.run?(combo) ? combo.length : 0) }
       end
       score
     end
 
     def total
-      score = 0
-      score += fifteens
-      score += flushes
-      score += nobs
-      score += pairs
-      score + runs
+      [fifteens, flushes, nobs, pairs, runs].sum
     end
   end
 end
