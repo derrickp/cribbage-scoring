@@ -31,7 +31,7 @@ module Cribbage
 
     def flushes
       is_flush = @sh.flush?(@hand.cards)
-      cut_match = @hand.cut_card.suit == @hand.cards.first.suit
+      cut_match = @sh.cards_match_suit(@hand.cut_card, @hand.cards.first)
       min_score = @hand.cards.length
       return min_score + 1 if is_flush && cut_match
       return min_score if !@hand.is_crib && is_flush

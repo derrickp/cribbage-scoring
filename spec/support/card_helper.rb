@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 
 require 'cards'
-require 'cribbage'
 
 def create_cards(card_defs)
   parts = card_defs.split(' ')

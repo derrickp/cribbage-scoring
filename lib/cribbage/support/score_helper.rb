@@ -54,6 +54,11 @@ module Cribbage
       cards.map(&:suit).uniq.length == 1
     end
 
+    def cards_match_suit(card1, card2)
+      return false if card1.nil? || card2.nil?
+      card1.suit == card2.suit
+    end
+
     def num_fifteens(cards)
       return 0 if cards.empty?
       combinations = get_card_combinations(cards, 2)
@@ -61,14 +66,14 @@ module Cribbage
     end
 
     def fifteen?(cards)
-      total = cards.reduce(0) { |sum, card| sum + FIFTEEN_VALUES[card.name] }
+      total = cards.reduce(0) { |sum, card| sum + FIFTEEN_VALUES[card.name] } unless cards.nil?
       total == 15
     end
 
     def get_card_combinations(cards, min_size)
       combos = []
       len = cards.length
-      return cards if len <= min_size
+      return [cards] if len <= min_size
       (min_size..len).each { |num| combos.concat(cards.combination(num).to_a) }
       combos
     end
