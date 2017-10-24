@@ -3,6 +3,7 @@
 
 require 'cards'
 require 'cribbage'
+
 def create_cards(card_defs)
   parts = card_defs.split(' ')
   parts.map { |part| create_card(part) }
@@ -14,48 +15,47 @@ def create_card(card_def)
   name_part = card_def[0].downcase
   suit_part = card_def[1].downcase
 
-  name = nil
-  suit = nil
+  name =
+    case name_part
+    when 'a'
+      :ace
+    when '2'
+      :two
+    when '3'
+      :three
+    when '4'
+      :four
+    when '5'
+      :five
+    when '6'
+      :six
+    when '7'
+      :seven
+    when '8'
+      :eight
+    when '9'
+      :nine
+    when 't'
+      :ten
+    when 'j'
+      :jack
+    when 'q'
+      :queen
+    when 'k'
+      :king
+    end
 
-  case name_part
-  when 'a'
-    name = :ace
-  when '2'
-    name = :two
-  when '3'
-    name = :three
-  when '4'
-    name = :four
-  when '5'
-    name = :five
-  when '6'
-    name = :six
-  when '7'
-    name = :seven
-  when '8'
-    name = :eight
-  when '9'
-    name = :nine
-  when 't'
-    name = :ten
-  when 'j'
-    name = :jack
-  when 'q'
-    name = :queen
-  when 'k'
-    name = :king
-  end
-
-  case suit_part
-  when 'h'
-    suit = :hearts
-  when 'd'
-    suit = :diamonds
-  when 's'
-    suit = :spades
-  when 'c'
-    suit = :clubs
-  end
+  suit =
+    case suit_part
+    when 'h'
+      :hearts
+    when 'd'
+      :diamonds
+    when 's'
+      :spades
+    when 'c'
+      :clubs
+    end
 
   Cards::Card.new(name, suit)
 end

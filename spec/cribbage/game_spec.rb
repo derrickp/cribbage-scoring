@@ -6,8 +6,7 @@ module Cribbage
 
   RSpec.describe Game do
     let(:game) do
-      return Game.new(num_players) unless num_players.nil?
-      Game.new
+      num_players.nil? ? Game.new : Game.new(num_players)
     end
     subject { game }
 
