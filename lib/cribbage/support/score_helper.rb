@@ -51,6 +51,7 @@ module Cribbage
     end
 
     def flush?(cards)
+      return false if cards.length == 1
       cards.map(&:suit).uniq.length == 1
     end
 

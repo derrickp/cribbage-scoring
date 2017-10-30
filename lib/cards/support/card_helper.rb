@@ -19,6 +19,50 @@ def create_card(card_def)
   Cards::Card.new(name, suit)
 end
 
+def get_name_key(name)
+  case name
+  when :ace
+    'A'
+  when :two
+    '2'
+  when :three
+    '3'
+  when :four
+    '4'
+  when :five
+    '5'
+  when :six
+    '6'
+  when :seven
+    '7'
+  when :eight
+    '8'
+  when :nine
+    '9'
+  when :ten
+    'T'
+  when :jack
+    'J'
+  when :queen
+    'Q'
+  when :king
+    'K'
+  end
+end
+
+def get_suit_key(suit)
+  case suit
+  when :hearts
+    'H'
+  when :diamonds
+    'D'
+  when :spades
+    'S'
+  when :clubs
+    'C'
+  end
+end
+
 def get_name(name_part)
   case name_part
   when 'a'
